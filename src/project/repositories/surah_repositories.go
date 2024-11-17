@@ -28,10 +28,32 @@ func GetSurahList(c echo.Context) ([]models.SurahResp, error) {
 			return nil, err
 		}
 
-		fmt.Println("surah", surah)
 		surahs = append(surahs, surah)
 	}
 
 	return surahs, nil
+}
 
+func GetAyatBySuratId(c echo.Context, suraId int) ([]models.AyatResp, error) {
+	db := connectors.GetDB(c)
+
+	rows, err := db.Query(`SELECT * FROM quran_id WHERE sura_id=$1;`, suraId)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var ayats []models.AyatResp
+	for rows.Next() {
+		var ayat models.AyatResp
+		if err := rows.Scan(&ayat.Id, &ayat.SuraId, &ayat.AyahText, &ayat.IndoText,
+			&ayat.ReadText, &ayat.JuzId, &ayat.VerseID); err != nil {
+			return nil, err
+		}
+		ayats = append(ayats, ayat)
+	}
+
+	return ayats, nil
 }

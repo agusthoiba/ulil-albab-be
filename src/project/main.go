@@ -44,6 +44,7 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
-	e.GET("/surahs", handlers.GetSurah)
+	e.GET("/quran/surah", handlers.GetSurah)
+	e.GET("/quran/ayat/:suraId", handlers.GetAyats)
 	e.Logger.Fatal(e.Start(":1323"))
 }
