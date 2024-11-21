@@ -46,5 +46,6 @@ func main() {
 
 	e.GET("/quran/surah", handlers.GetSurah)
 	e.GET("/quran/ayat/:suraId", handlers.GetAyats)
+	e.GET("/quran/ayat", handlers.GetAllAyats)
 	e.Logger.Fatal(e.Start(":1323"))
 }

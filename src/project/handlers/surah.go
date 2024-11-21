@@ -32,3 +32,13 @@ func GetAyats(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, surahRepo)
 }
+
+func GetAllAyats(c echo.Context) error {
+	surahRepo, err := repositories.GetAllAyat(c)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, surahRepo)
+}

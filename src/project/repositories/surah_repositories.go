@@ -57,3 +57,27 @@ func GetAyatBySuratId(c echo.Context, suraId int) ([]models.AyatResp, error) {
 
 	return ayats, nil
 }
+
+func GetAllAyat(c echo.Context) ([]models.AyatResp, error) {
+	db := connectors.GetDB(c)
+
+	rows, err := db.Query(`SELECT * FROM quran_id`)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var ayats []models.AyatResp
+	for rows.Next() {
+		var ayat models.AyatResp
+		if err := rows.Scan(&ayat.Id, &ayat.SuraId, &ayat.AyahText, &ayat.IndoText,
+			&ayat.ReadText, &ayat.JuzId, &ayat.VerseID); err != nil {
+			return nil, err
+		}
+		ayats = append(ayats, ayat)
+	}
+
+	return ayats, nil
+}
