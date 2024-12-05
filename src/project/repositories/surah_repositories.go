@@ -1,19 +1,27 @@
 package repositories
 
 import (
-	"fmt"
-	"ulil-albab-be/src/project/connectors"
+	"database/sql"
 	"ulil-albab-be/src/project/models"
-
-	"github.com/labstack/echo/v4"
 )
 
-func GetSurahList(c echo.Context) ([]models.SurahResp, error) {
-	db := connectors.GetDB(c)
+type SurahRepository struct {
+	db *sql.DB
+}
 
-	fmt.Println("db", db)
+type SurahRepo interface {
+	GetSurahList() ([]models.AyatResp, error)
+}
 
-	rows, err := db.Query("SELECT * FROM surah")
+func NewSurah(db *sql.DB) *SurahRepository {
+	return &SurahRepository{
+		db: db,
+	}
+}
+
+func (sr *SurahRepository) GetSurahList() ([]models.SurahResp, error) {
+	rows, err := sr.db.Query("SELECT * FROM surah")
+
 	if err != nil {
 		return nil, err
 	}
@@ -32,52 +40,4 @@ func GetSurahList(c echo.Context) ([]models.SurahResp, error) {
 	}
 
 	return surahs, nil
-}
-
-func GetAyatBySuratId(c echo.Context, suraId int) ([]models.AyatResp, error) {
-	db := connectors.GetDB(c)
-
-	rows, err := db.Query(`SELECT * FROM quran_id WHERE sura_id=$1;`, suraId)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var ayats []models.AyatResp
-	for rows.Next() {
-		var ayat models.AyatResp
-		if err := rows.Scan(&ayat.Id, &ayat.SuraId, &ayat.AyahText, &ayat.IndoText,
-			&ayat.ReadText, &ayat.JuzId, &ayat.VerseID); err != nil {
-			return nil, err
-		}
-		ayats = append(ayats, ayat)
-	}
-
-	return ayats, nil
-}
-
-func GetAllAyat(c echo.Context) ([]models.AyatResp, error) {
-	db := connectors.GetDB(c)
-
-	rows, err := db.Query(`SELECT * FROM quran_id`)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var ayats []models.AyatResp
-	for rows.Next() {
-		var ayat models.AyatResp
-		if err := rows.Scan(&ayat.Id, &ayat.SuraId, &ayat.AyahText, &ayat.IndoText,
-			&ayat.ReadText, &ayat.JuzId, &ayat.VerseID); err != nil {
-			return nil, err
-		}
-		ayats = append(ayats, ayat)
-	}
-
-	return ayats, nil
 }

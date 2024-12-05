@@ -2,43 +2,42 @@ package connectors
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 
 	"database/sql"
 
 	_ "github.com/lib/pq"
+
+	"ulil-albab-be/src/project/models"
 )
 
-func InitDB() *sql.DB {
-	//psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-	//	os.Getenv("DB_SQL_HOST"), dbPort, os.Getenv("DB_SQL_USER"), os.Getenv("DB_SQL_PASSWORD"), os.Getenv("DB_SQL_NAME"))
+/* var (
+	SqlOpen = sql.Open
+)*/
 
-	dbPort, err := strconv.Atoi(os.Getenv("DB_SQL_PORT"))
-	if err != nil {
-		panic(err)
-	}
+type (
+	sqlOpener func(string, string) (*sql.DB, error)
+)
 
+func InitDB(option models.OptionDb, sqlOpen sqlOpener) (*sql.DB, error) {
 	psqlconn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		os.Getenv("DB_SQL_USER"), os.Getenv("DB_SQL_PASSWORD"), os.Getenv("DB_SQL_HOST"), dbPort, os.Getenv("DB_SQL_NAME"))
+		option.User, option.Password, option.Host, option.Port, option.DbName)
 
-	fmt.Println("psqlconn --", psqlconn)
-	db, err := sql.Open("postgres", psqlconn)
+	db, err := sqlOpen("postgres", psqlconn)
 
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 
-	err = db.Ping()
+	/*err = db.Ping()
 	if err != nil {
-		panic(err.Error())
-	}
+		return nil, err
+	}*/
 
 	fmt.Println("Successfully connected to database")
 
-	return db
+	return db, nil
 }
 
 // GetDB retrieves the database connection from the context

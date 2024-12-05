@@ -1,5 +1,13 @@
 package models
 
+type OptionDb struct {
+	Host     string
+	Port     int
+	User     string
+	Password string
+	DbName   string
+}
+
 type ErrorResp struct {
 	Code         int    `json:"code"`
 	ErrorCode    string `json:"errorCode"`
