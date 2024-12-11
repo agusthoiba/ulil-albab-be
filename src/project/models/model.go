@@ -1,5 +1,7 @@
 package models
 
+import "database/sql"
+
 type OptionDb struct {
 	Host     string
 	Port     int
@@ -35,11 +37,11 @@ type SurahResp struct {
 }
 
 type AyatResp struct {
-	Id       int    `json:"id"`
-	SuraId   int    `json:"suraId"`
-	AyahText string `json:"ayahText"`
-	IndoText string `json:"indoText"`
-	ReadText string `json:"ReadText"`
-	JuzId    *int   `json:"juzId"`
-	VerseID  int    `json:"verseID"`
+	Id       int           `db:"id" json:"id"`
+	SuraId   int           `db:"sura_id" json:"suraId"`
+	AyahText string        `db:"ayah_text" json:"ayahText"`
+	IndoText string        `db:"indo_text"  json:"indoText"`
+	ReadText string        `db:"read_text" json:"ReadText"`
+	JuzId    sql.NullInt64 `db:"juz_id" json:"juzId"`
+	VerseID  int           `db:"verse_id" json:"verseID"`
 }
