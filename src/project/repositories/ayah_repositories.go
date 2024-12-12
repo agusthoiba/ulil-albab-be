@@ -49,7 +49,7 @@ func (ayat *AyahRepository) GetAllAyat() ([]models.AyatResp, error) {
 }
 
 func (ayat *AyahRepository) GetAyatBySuratId(suraId int) ([]models.AyatResp, error) {
-	rows, err := ayat.db.Query(`SELECT * FROM quran_id WHERE sura_id = $1`, suraId)
+	rows, err := ayat.db.Query("SELECT * FROM quran_id WHERE sura_id = $1", suraId)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
