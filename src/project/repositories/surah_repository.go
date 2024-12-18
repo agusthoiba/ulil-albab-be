@@ -10,7 +10,7 @@ type SurahRepository struct {
 }
 
 type SurahRepo interface {
-	GetSurahList() ([]models.AyatResp, error)
+	GetSurahList() ([]models.SurahResp, error)
 }
 
 func NewSurah(db *sql.DB) *SurahRepository {

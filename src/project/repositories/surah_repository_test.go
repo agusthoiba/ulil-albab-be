@@ -3,7 +3,6 @@ package repositories
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 	"testing"
 	"ulil-albab-be/src/project/models"
 
@@ -25,7 +24,7 @@ func (sr *SurahRepository) EncodeToBytes(p interface{}) []byte {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("uncompressed size (bytes): ", len(buf.Bytes()))
+	// fmt.Println("uncompressed size (bytes): ", len(buf.Bytes()))
 	return buf.Bytes()
 }
 

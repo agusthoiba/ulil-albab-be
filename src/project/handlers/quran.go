@@ -9,8 +9,15 @@ import (
 )
 
 type QuranHandler struct {
-	AyahRepository  *repositories.AyahRepository
 	SurahRepository *repositories.SurahRepository
+	AyahRepository  *repositories.AyahRepository
+}
+
+func NewQuranHandler(surahRepo *repositories.SurahRepository, ayahRepo *repositories.AyahRepository) *QuranHandler {
+	return &QuranHandler{
+		SurahRepository: surahRepo,
+		AyahRepository:  ayahRepo,
+	}
 }
 
 func (qh *QuranHandler) GetSurah(c echo.Context) error {

@@ -60,8 +60,8 @@ func NewMiddleware(e *echo.Echo) error {
 	surahRepo := repositories.NewSurah(db)
 
 	quranHandler := handlers.QuranHandler{
-		AyahRepository:  ayahRepo,
 		SurahRepository: surahRepo,
+		AyahRepository:  ayahRepo,
 	}
 
 	e.GET("/quran/surah", quranHandler.GetSurah)
