@@ -18,6 +18,7 @@ import (
 	"ulil-albab-be/src/project/handlers"
 	"ulil-albab-be/src/project/models"
 	"ulil-albab-be/src/project/repositories"
+	"ulil-albab-be/src/project/services"
 )
 
 // DBMiddleware adds the database connection to the context
@@ -59,10 +60,9 @@ func NewMiddleware(e *echo.Echo) error {
 	ayahRepo := repositories.NewAyah(db)
 	surahRepo := repositories.NewSurah(db)
 
-	quranHandler := handlers.QuranHandler{
-		SurahRepository: surahRepo,
-		AyahRepository:  ayahRepo,
-	}
+	service := services.NewService(surahRepo, ayahRepo)
+
+	quranHandler := handlers.NewQuranHandler(service)
 
 	e.GET("/quran/surah", quranHandler.GetSurah)
 	e.GET("/quran/ayat/:suraId", quranHandler.GetAyats)
