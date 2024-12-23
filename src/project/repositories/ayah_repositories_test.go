@@ -3,10 +3,12 @@ package repositories
 import (
 	"bytes"
 	"database/sql"
+	"errors"
 	"testing"
 	"ulil-albab-be/src/project/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 
 	"ulil-albab-be/src/project/utils"
 )
@@ -76,9 +78,23 @@ func TestAyahRepositories_GetAllAyat(t *testing.T) {
 
 }
 
-func TestAyahRepositories_GetAyatBySuraId(t *testing.T) {
+func TestAyahRepositories_GetAllAyatError(t *testing.T) {
+	db, qlmock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
 
-	// mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	ayahRepo := &AyahRepository{db}
+
+	mockError := errors.New("Some error")
+	qlmock.ExpectQuery("^SELECT (.+) FROM quran_id$").WillReturnError(mockError)
+
+	_, err = ayahRepo.GetAllAyat()
+	assert.Error(t, mockError, err)
+}
+
+func TestAyahRepositories_GetAyatBySuraId(t *testing.T) {
 	db, qlmock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -133,4 +149,26 @@ func TestAyahRepositories_GetAyatBySuraId(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
+}
+
+func TestAyahRepositories_GetAyatBySuraIdError(t *testing.T) {
+	db, qlmock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	ayahRepo := &AyahRepository{db}
+
+	mockError := errors.New("Some error")
+
+	qlmock.ExpectQuery("SELECT * FROM quran_id WHERE sura_id = $1").WithArgs(sqlmock.AnyArg()).WillReturnError(mockError)
+
+	_, err = ayahRepo.GetAyatBySuratId(1)
+
+	assert.Error(t, mockError, err)
+	// we make sure that all expectations were met
+	if err := qlmock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
 }
