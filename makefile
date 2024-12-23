@@ -10,7 +10,9 @@ run:
 # testing
 test:
 	go test -v ./...
-	
-#go tool cover -html=cover.out
+
+local-test:	
+	go test -v ./... -coverprofile=cover.out
+	go tool cover -html=cover.out
 
 
