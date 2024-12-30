@@ -1,6 +1,7 @@
 package services
 
 import (
+	"sync"
 	"testing"
 
 	"ulil-albab-be/src/project/models"
@@ -17,6 +18,11 @@ func (m *MockSurahRepo) GetSurahList() ([]models.SurahResp, error) {
 	args := m.Called()
 	return args.Get(0).([]models.SurahResp), args.Error(1)
 
+}
+
+func (m *MockSurahRepo) GetSurahListRoutine(*sync.WaitGroup, chan []models.SurahResp) {
+	//args := m.Called()
+	return
 }
 
 type MockAyahRepo struct {

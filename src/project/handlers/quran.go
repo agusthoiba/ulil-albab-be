@@ -50,3 +50,13 @@ func (qh *QuranHandler) GetAllAyats(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, surahRepo)
 }
+
+func (qh *QuranHandler) GetAll(c echo.Context) error {
+	quranData, err := qh.service.GetAll()
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, quranData)
+}

@@ -59,6 +59,11 @@ func (m *MockServices) GetAyatBySuratId(id int) ([]models.AyatResp, error) {
 	return args.Get(0).([]models.AyatResp), args.Error(1)
 }
 
+func (m *MockServices) GetAll() (models.QuranAllResp, error) {
+	args := m.Called()
+	return args.Get(0).(models.QuranAllResp), args.Error(1)
+}
+
 func TestQuranHandler_GetSurah(t *testing.T) {
 	// Setup
 	e := echo.New()

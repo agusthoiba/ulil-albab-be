@@ -67,8 +67,7 @@ func NewMiddleware(e *echo.Echo) error {
 	e.GET("/quran/surah", quranHandler.GetSurah)
 	e.GET("/quran/ayat/:suraId", quranHandler.GetAyats)
 	e.GET("/quran/ayat", quranHandler.GetAllAyats)
-
-	// e.GET("/quran/all", handlers.GetAllAyats)
+	e.GET("/quran", quranHandler.GetAll)
 
 	return nil
 }

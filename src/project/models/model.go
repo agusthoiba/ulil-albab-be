@@ -45,3 +45,8 @@ type AyatResp struct {
 	JuzId    sql.NullInt64 `db:"juz_id" json:"juzId"`
 	VerseID  int           `db:"verse_id" json:"verseID"`
 }
+
+type QuranAllResp struct {
+	Surahs []SurahResp `json:"surahs"`
+	Ayahs  []AyatResp  `json:"ayahs"`
+}
