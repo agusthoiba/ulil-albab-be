@@ -30,10 +30,10 @@ func InitDB(option models.OptionDb, sqlOpen sqlOpener) (*sql.DB, error) {
 		return nil, err
 	}
 
-	/*err = db.Ping()
+	err = db.Ping()
 	if err != nil {
-		return nil, err
-	}*/
+		panic("Error connected to database")
+	}
 
 	fmt.Println("Successfully connected to database")
 
