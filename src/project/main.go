@@ -1,15 +1,13 @@
 package main
 
 import (
+	"os"
 	"net/http"
-
 	"ulil-albab-be/src/project/middlewares"
 
-	_ "github.com/lib/pq"
-
-	"github.com/labstack/echo/v4"
-
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -30,5 +28,6 @@ func main() {
 		e.Logger.Fatal("Error middleware")
 	}
 
-	e.Logger.Fatal(e.Start(":1323"))
+	port := os.Getenv("PORT")
+	e.Logger.Fatal(e.Start(":"+ port))
 }

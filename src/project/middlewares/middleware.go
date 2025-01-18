@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
-
 	"github.com/labstack/echo/v4/middleware"
+
+	log "github.com/sirupsen/logrus"
 
 	"database/sql"
 
@@ -35,6 +37,16 @@ func DBMiddleware(db *sql.DB) echo.MiddlewareFunc {
 func NewMiddleware(e *echo.Echo) error {
 	e.Use(middleware.Logger())
 
+	for _, e := range os.Environ() {
+        pair := strings.SplitN(e, "=", 2)
+		if pair[0] != "DB_SQL_PASSWORD" { 
+        	log.Info(pair[0],":",pair[1])
+		}
+    }
+
+
+	log.SetLevel(log.TraceLevel)
+
 	dbPort, err := strconv.Atoi(os.Getenv("DB_SQL_PORT"))
 	if err != nil {
 		panic(err)
@@ -48,7 +60,7 @@ func NewMiddleware(e *echo.Echo) error {
 		DbName:   os.Getenv("DB_SQL_NAME"),
 	}
 
-	db, err := connectors.InitDB(optionDb, sql.Open)
+	db, err := connectors.InitDB(optionDb)
 
 	if err != nil {
 		fmt.Println(err)
