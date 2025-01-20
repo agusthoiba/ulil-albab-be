@@ -2,7 +2,6 @@ package connectors
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/labstack/echo/v4"
 
@@ -10,10 +9,12 @@ import (
 
 	_ "github.com/lib/pq"
 
+
+	"ulil-albab-be/src/project/logger"
 	"ulil-albab-be/src/project/models"
 )
 
-func InitDB(option models.OptionDb) (*sql.DB, error) {
+func InitDB(option models.OptionDb, logger *logger.LogClass) (*sql.DB, error) {
 	psqlconn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		option.User, option.Password, option.Host, option.Port, option.DbName)
 
@@ -25,11 +26,11 @@ func InitDB(option models.OptionDb) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		logger.Log().Fatalf("Failed to connect to database: %v", err)
 		panic("Error connected to database")
 	}
 
-	log.Println("Successfully connected to database")
+	logger.Log().Info("Successfully connected to database")
 
 	return db, nil
 }

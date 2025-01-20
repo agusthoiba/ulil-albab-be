@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -10,12 +9,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	log "github.com/sirupsen/logrus"
-
 	"database/sql"
+	"github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 
+	logging "ulil-albab-be/src/project/logger"
 	"ulil-albab-be/src/project/connectors"
 	"ulil-albab-be/src/project/handlers"
 	"ulil-albab-be/src/project/models"
@@ -35,17 +34,49 @@ func DBMiddleware(db *sql.DB) echo.MiddlewareFunc {
 }
 
 func NewMiddleware(e *echo.Echo) error {
-	e.Use(middleware.Logger())
+	skipper := func(c echo.Context) bool {
+		// Skip health check endpoint
+		return c.Request().URL.Path == "/health"
+	}
 
-	for _, e := range os.Environ() {
-        pair := strings.SplitN(e, "=", 2)
-		if pair[0] != "DB_SQL_PASSWORD" { 
-        	log.Info(pair[0],":",pair[1])
+	logger := logging.NewInitiateLogger()
+
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogURI:      true,
+		LogStatus:   true,
+		LogError:    true,
+		LogMethod: true,
+		LogRemoteIP: true,
+		LogRequestID: true,
+		Skipper: skipper,
+		HandleError: true, // forwards error to the global error handler, so it can decide appropriate status code
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+				logs := logger.Log().WithFields(logrus.Fields{
+					"method": v.Method,
+					"uri":   v.URI,
+					"headers": c.Request().Header,
+					"body": c.Request().Body,
+					"status": v.Status,
+					"latency": v.Latency,
+					"ip": v.RemoteIP,
+				})
+			
+				if v.Error!= nil {
+                    logs.WithError(v.Error).Error("error")
+                } else {
+                    logs.Info("request")
+                }
+
+        		return nil
+    	},
+	}))
+
+	for _, env := range os.Environ() {
+		if !strings.HasPrefix(env, "DB_SQL_PASSWORD") {
+			logger.Log().Info(env)
 		}
     }
 
-
-	log.SetLevel(log.TraceLevel)
 
 	dbPort, err := strconv.Atoi(os.Getenv("DB_SQL_PORT"))
 	if err != nil {
@@ -60,10 +91,10 @@ func NewMiddleware(e *echo.Echo) error {
 		DbName:   os.Getenv("DB_SQL_NAME"),
 	}
 
-	db, err := connectors.InitDB(optionDb)
+	db, err := connectors.InitDB(optionDb, logger)
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Log().Error(err)
 		return err
 	}
 
