@@ -2,15 +2,17 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"sync"
+
 	"ulil-albab-be/src/project/models"
+	"ulil-albab-be/src/project/logger"
 
 	_ "github.com/lib/pq"
 )
 
 type AyahRepository struct {
 	db *sql.DB
+	logger *logger.LogClass
 }
 
 type AyahRepo interface {
@@ -20,14 +22,15 @@ type AyahRepo interface {
 }
 
 // constructor
-func NewAyah(db *sql.DB) *AyahRepository {
+func NewAyah(db *sql.DB, logger *logger.LogClass) *AyahRepository {
 	return &AyahRepository{
 		db: db,
+		logger: logger,
 	}
 }
 
-func (ayat *AyahRepository) GetAllAyat() ([]models.AyatResp, error) {
-	rows, err := ayat.db.Query("SELECT * FROM quran_id")
+func (ay *AyahRepository) GetAllAyat() ([]models.AyatResp, error) {
+	rows, err := ay.db.Query("SELECT * FROM quran_id")
 
 	if err != nil {
 		return nil, err
@@ -49,8 +52,8 @@ func (ayat *AyahRepository) GetAllAyat() ([]models.AyatResp, error) {
 	return ayats, nil
 }
 
-func (ayat *AyahRepository) GetAyatBySuratId(suraId int) ([]models.AyatResp, error) {
-	rows, err := ayat.db.Query("SELECT * FROM quran_id WHERE sura_id = $1", suraId)
+func (ay *AyahRepository) GetAyatBySuratId(suraId int) ([]models.AyatResp, error) {
+	rows, err := ay.db.Query("SELECT * FROM quran_id WHERE sura_id = $1", suraId)
 	if err != nil {
 		return nil, err
 	}
@@ -70,12 +73,12 @@ func (ayat *AyahRepository) GetAyatBySuratId(suraId int) ([]models.AyatResp, err
 	return ayats, nil
 }
 
-func (ayat *AyahRepository) GetAllAyatRoutine(wg *sync.WaitGroup, ch chan []models.AyatResp) {
+func (ay *AyahRepository) GetAllAyatRoutine(wg *sync.WaitGroup, ch chan []models.AyatResp) {
 	defer wg.Done()
-	rows, err := ayat.db.Query("SELECT * FROM quran_id")
+	rows, err := ay.db.Query("SELECT * FROM quran_id")
 
 	if err != nil {
-		fmt.Println(err)
+		ay.logger.Log().Error(err)
 	}
 
 	defer rows.Close()
@@ -86,7 +89,7 @@ func (ayat *AyahRepository) GetAllAyatRoutine(wg *sync.WaitGroup, ch chan []mode
 		var ayat models.AyatResp
 		if err := rows.Scan(&ayat.Id, &ayat.SuraId, &ayat.VerseID, &ayat.AyahText, &ayat.IndoText,
 			&ayat.ReadText, &ayat.JuzId); err != nil {
-			fmt.Println(err)
+			ay.logger.Log().Error(err)
 		}
 		ayats = append(ayats, ayat)
 	}

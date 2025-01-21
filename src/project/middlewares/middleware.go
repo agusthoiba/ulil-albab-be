@@ -5,12 +5,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"fmt"
+	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	"database/sql"
-	"github.com/sirupsen/logrus"
+	// "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 
@@ -51,21 +53,17 @@ func NewMiddleware(e *echo.Echo) error {
 		Skipper: skipper,
 		HandleError: true, // forwards error to the global error handler, so it can decide appropriate status code
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-				logs := logger.Log().WithFields(logrus.Fields{
-					"method": v.Method,
-					"uri":   v.URI,
-					"headers": c.Request().Header,
-					"body": c.Request().Body,
-					"status": v.Status,
-					"latency": v.Latency,
-					"ip": v.RemoteIP,
-				})
-			
-				if v.Error!= nil {
-                    logs.WithError(v.Error).Error("error")
-                } else {
-                    logs.Info("request")
-                }
+			headerByte,_  := json.Marshal(c.Request().Header)
+			bodyByte,_ := json.Marshal(c.Request().Body)
+			logStr, _ := fmt.Printf(`{"method":"%v","uri":"%v","headers":%v,"body":%v,"status":"%v","latency":"%v","ip":"%v"}`, v.Method, v.URI, string(headerByte), string(bodyByte), v.Status, v.Latency, v.RemoteIP)
+
+			logJson, _ := json.Marshal(logStr)
+
+			if v.Error!= nil {
+                logger.Log().WithError(v.Error).Error("error")
+            } else {
+                logger.Log().Info(logJson)
+            }
 
         		return nil
     	},
@@ -100,7 +98,7 @@ func NewMiddleware(e *echo.Echo) error {
 
 	e.Use(DBMiddleware(db))
 
-	ayahRepo := repositories.NewAyah(db)
+	ayahRepo := repositories.NewAyah(db, logger)
 	surahRepo := repositories.NewSurah(db)
 
 	service := services.NewService(surahRepo, ayahRepo)

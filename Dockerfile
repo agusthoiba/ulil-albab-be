@@ -9,6 +9,8 @@ RUN go mod download
 
 COPY . .
 
+RUN touch .env
+
 RUN go build -o /app /build/src/project
 
 EXPOSE 1323

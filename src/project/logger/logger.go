@@ -10,6 +10,10 @@ type LogClass struct {
 	Logger  *logrus.Logger
 }
 
+type LogInterface interface {
+	Log() *logrus.Logger
+}
+
 // NewInitiateLogger - constructor
 func NewInitiateLogger() *LogClass {
 	lc := &LogClass{
