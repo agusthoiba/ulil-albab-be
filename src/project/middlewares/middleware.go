@@ -49,6 +49,7 @@ func NewMiddleware(e *echo.Echo) error {
 		LogError:    true,
 		LogMethod: true,
 		LogRemoteIP: true,
+		LogLatency: true,
 		LogRequestID: true,
 		Skipper: skipper,
 		HandleError: true, // forwards error to the global error handler, so it can decide appropriate status code
@@ -74,7 +75,6 @@ func NewMiddleware(e *echo.Echo) error {
 			logger.Log().Info(env)
 		}
     }
-
 
 	dbPort, err := strconv.Atoi(os.Getenv("DB_SQL_PORT"))
 	if err != nil {

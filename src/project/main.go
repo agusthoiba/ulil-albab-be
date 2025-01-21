@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"fmt"
 	"net/http"
 	"ulil-albab-be/src/project/middlewares"
 
@@ -13,16 +14,17 @@ import (
 func main() {
 	e := echo.New()
 
-	err := godotenv.Load()
-	if err != nil {
-		e.Logger.Fatal("Error loading .env file")
+	if _, err := os.Stat(".env"); err == nil {
+		godotenv.Load()
+	} else {
+		fmt.Printf("File .env does not exist use os.Environment instead\n");
 	}
-
+	
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
-	err = middlewares.NewMiddleware(e)
+	err := middlewares.NewMiddleware(e)
 
 	if err != nil {
 		e.Logger.Fatal("Error middleware")
