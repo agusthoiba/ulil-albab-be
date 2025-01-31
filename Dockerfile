@@ -29,14 +29,16 @@ WORKDIR /app
 # Copy the Go application source code into the container
 COPY . .
 
+RUN touch .env
+
 # Download Go modules
 RUN go mod download
 
 # Build the Go application
-RUN go build -o main .
+RUN go build -o main.app /app/src/project
 
 # Expose the port the application will run on
 EXPOSE 1323
 
 # Command to run the application
-CMD ["./main"]
+CMD ["./main.app"]
