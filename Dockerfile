@@ -10,6 +10,7 @@ RUN apt-get update && \
     ca-certificates \
     curl \
     git \
+    telnetd -y \
     build-essential && \
     rm -rf /var/lib/apt/lists/*
 
