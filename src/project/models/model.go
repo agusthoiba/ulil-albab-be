@@ -27,13 +27,14 @@ type Surah struct {
 }
 
 type SurahResp struct {
-	Number        int    `json:"number"`
-	NumberOfAyahs int    `json:"numberOfAyahs"`
-	Name          string `json:"name"`
-	Translation   string `json:"translation"`
-	Revelation    string `json:"revelation"`
-	Description   string `json:"description"`
-	Audio         string `json:"audio"`
+	Number        int            `db:"number" json:"number"`
+	NumberOfAyahs int            `db:"numberofayahs" json:"numberOfAyahs"`
+	Name          string         `db:"name" json:"name"`
+	Translation   string         `db:"translation" json:"translation"`
+	Revelation    string         `db:"revelation" json:"revelation"`
+	Description   string         `db:"description" json:"description"`
+	Audio         string         `db:"audio" json:"audio"`
+	NameArab      sql.NullString `db:"name_arab" json:"nameArab"`
 }
 
 type AyatResp struct {

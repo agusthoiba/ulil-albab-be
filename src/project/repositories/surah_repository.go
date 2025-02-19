@@ -23,7 +23,7 @@ func NewSurah(db *sql.DB) *SurahRepository {
 }
 
 func (sr *SurahRepository) GetSurahList() ([]models.SurahResp, error) {
-	rows, err := sr.db.Query("SELECT * FROM surah")
+	rows, err := sr.db.Query("SELECT * FROM surah ORDER BY number")
 
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (sr *SurahRepository) GetSurahList() ([]models.SurahResp, error) {
 	for rows.Next() {
 		var surah models.SurahResp
 		if err := rows.Scan(&surah.Number, &surah.NumberOfAyahs, &surah.Name, &surah.Translation,
-			&surah.Revelation, &surah.Description, &surah.Audio); err != nil {
+			&surah.Revelation, &surah.Description, &surah.Audio, &surah.NameArab); err != nil {
 			return nil, err
 		}
 
@@ -47,7 +47,7 @@ func (sr *SurahRepository) GetSurahList() ([]models.SurahResp, error) {
 
 func (sr *SurahRepository) GetSurahListRoutine(wg *sync.WaitGroup, ch chan []models.SurahResp) {
 	defer wg.Done()
-	rows, err := sr.db.Query("SELECT * FROM surah")
+	rows, err := sr.db.Query("SELECT * FROM surah ORDER BY number")
 
 	if err != nil {
 		fmt.Println(err)
@@ -59,7 +59,7 @@ func (sr *SurahRepository) GetSurahListRoutine(wg *sync.WaitGroup, ch chan []mod
 	for rows.Next() {
 		var surah models.SurahResp
 		if err := rows.Scan(&surah.Number, &surah.NumberOfAyahs, &surah.Name, &surah.Translation,
-			&surah.Revelation, &surah.Description, &surah.Audio); err != nil {
+			&surah.Revelation, &surah.Description, &surah.Audio, &surah.NameArab); err != nil {
 			fmt.Println(err)
 		}
 
