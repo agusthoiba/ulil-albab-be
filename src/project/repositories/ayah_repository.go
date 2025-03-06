@@ -30,7 +30,7 @@ func NewAyah(db *sql.DB, logger *logger.LogClass) *AyahRepository {
 }
 
 func (ay *AyahRepository) GetAllAyat() ([]models.AyatResp, error) {
-	rows, err := ay.db.Query("SELECT * FROM quran_id")
+	rows, err := ay.db.Query("SELECT * FROM quran_id ORDER BY id ASC")
 
 	if err != nil {
 		return nil, err
