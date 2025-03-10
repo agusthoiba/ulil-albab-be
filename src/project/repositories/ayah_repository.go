@@ -53,7 +53,7 @@ func (ay *AyahRepository) GetAllAyat() ([]models.AyatResp, error) {
 }
 
 func (ay *AyahRepository) GetAyatBySuratId(suraId int) ([]models.AyatResp, error) {
-	rows, err := ay.db.Query("SELECT * FROM quran_id WHERE sura_id = $1", suraId)
+	rows, err := ay.db.Query("SELECT * FROM quran_id WHERE sura_id = $1 ORDER BY id ASC", suraId)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (ay *AyahRepository) GetAyatBySuratId(suraId int) ([]models.AyatResp, error
 
 func (ay *AyahRepository) GetAllAyatRoutine(wg *sync.WaitGroup, ch chan []models.AyatResp) {
 	defer wg.Done()
-	rows, err := ay.db.Query("SELECT * FROM quran_id")
+	rows, err := ay.db.Query("SELECT * FROM quran_id ORDER BY id ASC")
 
 	if err != nil {
 		ay.logger.Log().Error(err)
