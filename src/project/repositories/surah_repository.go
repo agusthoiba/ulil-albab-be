@@ -23,7 +23,7 @@ func NewSurah(db *sql.DB) *SurahRepository {
 }
 
 func (sr *SurahRepository) GetSurahList() ([]models.SurahResp, error) {
-	rows, err := sr.db.Query("SELECT * FROM surah ORDER BY number")
+	rows, err := sr.db.Query("SELECT number,numberofayahs,name,translation,revelation,audio,name_arab  FROM surah ORDER BY number")
 
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (sr *SurahRepository) GetSurahList() ([]models.SurahResp, error) {
 	for rows.Next() {
 		var surah models.SurahResp
 		if err := rows.Scan(&surah.Number, &surah.NumberOfAyahs, &surah.Name, &surah.Translation,
-			&surah.Revelation, &surah.Description, &surah.Audio, &surah.NameArab); err != nil {
+			&surah.Revelation, &surah.Audio, &surah.NameArab); err != nil {
 			return nil, err
 		}
 
