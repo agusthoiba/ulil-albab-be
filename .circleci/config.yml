@@ -76,11 +76,11 @@ jobs:
       - run:
           name: Debug SSH
           command: |
-            ssh -vvv -o StrictHostKeyChecking=no $DO_USER@$DO_IP -p $SSH_PORT "echo 'Testing connection'"
+            ssh -vvv -o StrictHostKeyChecking=no $DO_USER@$DO_IP "echo 'Testing connection'"
       - run:
           name: Deploy Service
           command: |
-            ssh -o StrictHostKeyChecking=no $DO_USER@$DO_IP -p $SSH_PORT
+            ssh -o StrictHostKeyChecking=no $DO_USER@$DO_IP
               "cd build && 
               export POSTGRESQL_HOST=$POSTGRESQL_HOST &&
               export IMAGE_TAG=$COMMIT_ID &&
