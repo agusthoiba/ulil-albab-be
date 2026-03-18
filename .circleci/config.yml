@@ -79,7 +79,7 @@ jobs:
       - run:
           name: Deploy Service
           command: |
-            ssh -o StrictHostKeyChecking=no $DO_USER@$DO_IP
+            ssh $DO_USER@$DO_IP \
               "cd build && 
               export POSTGRESQL_HOST=$POSTGRESQL_HOST &&
               export IMAGE_TAG=$COMMIT_ID &&
