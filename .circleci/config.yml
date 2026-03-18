@@ -14,7 +14,7 @@ jobs:
     docker:
       # Specify the version you desire here
       # See: https://circleci.com/developer/images/image/cimg/go
-      - image: cimg/go:1.24
+      - image: cimg/go:1.25
 
     environment:
       IMAGE_NAME: ulil-albab-be     

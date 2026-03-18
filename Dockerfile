@@ -1,5 +1,5 @@
-# Use the official Ubuntu 22.04 as the base image
-FROM ubuntu:22.04
+# Use the official Ubuntu 24.04 as the base image
+FROM ubuntu:24.04
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and install Go
-ENV GOLANG_VERSION=1.20
+ENV GOLANG_VERSION=1.25
 RUN curl -LO https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     rm go${GOLANG_VERSION}.linux-amd64.tar.gz

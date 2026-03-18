@@ -2,11 +2,11 @@ package middlewares
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
-	"fmt"
-	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -16,9 +16,11 @@ import (
 
 	_ "github.com/lib/pq"
 
-	logging "ulil-albab-be/src/project/logger"
+	firebaseauthpkg "firebase.google.com/go/v4/auth"
+
 	"ulil-albab-be/src/project/connectors"
 	"ulil-albab-be/src/project/handlers"
+	logging "ulil-albab-be/src/project/logger"
 	"ulil-albab-be/src/project/models"
 	"ulil-albab-be/src/project/repositories"
 	"ulil-albab-be/src/project/services"
@@ -44,37 +46,37 @@ func NewMiddleware(e *echo.Echo) error {
 	logger := logging.NewInitiateLogger()
 
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:      true,
-		LogStatus:   true,
-		LogError:    true,
-		LogMethod: true,
-		LogRemoteIP: true,
-		LogLatency: true,
+		LogURI:       true,
+		LogStatus:    true,
+		LogError:     true,
+		LogMethod:    true,
+		LogRemoteIP:  true,
+		LogLatency:   true,
 		LogRequestID: true,
-		Skipper: skipper,
-		HandleError: true, // forwards error to the global error handler, so it can decide appropriate status code
+		Skipper:      skipper,
+		HandleError:  true, // forwards error to the global error handler, so it can decide appropriate status code
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			headerByte,_  := json.Marshal(c.Request().Header)
-			bodyByte,_ := json.Marshal(c.Request().Body)
+			headerByte, _ := json.Marshal(c.Request().Header)
+			bodyByte, _ := json.Marshal(c.Request().Body)
 			logStr, _ := fmt.Printf(`{"method":"%v","uri":"%v","headers":%v,"body":%v,"status":"%v","latency":"%v","ip":"%v"}`, v.Method, v.URI, string(headerByte), string(bodyByte), v.Status, v.Latency, v.RemoteIP)
 
 			logJson, _ := json.Marshal(logStr)
 
-			if v.Error!= nil {
-                logger.Log().WithError(v.Error).Error("error")
-            } else {
-                logger.Log().Info(logJson)
-            }
+			if v.Error != nil {
+				logger.Log().WithError(v.Error).Error("error")
+			} else {
+				logger.Log().Info(logJson)
+			}
 
-        		return nil
-    	},
+			return nil
+		},
 	}))
 
 	for _, env := range os.Environ() {
 		if !strings.HasPrefix(env, "DB_SQL_PASSWORD") {
 			logger.Log().Info(env)
 		}
-    }
+	}
 
 	dbPort, err := strconv.Atoi(os.Getenv("DB_SQL_PORT"))
 	if err != nil {
@@ -98,6 +100,31 @@ func NewMiddleware(e *echo.Echo) error {
 
 	e.Use(DBMiddleware(db))
 
+	InitFirebase(os.Getenv("FIREBASE_CREDENTIALS_PATH"))
+
+	userRepo := repositories.NewUserRepository(db, logger)
+	if err := userRepo.EnsureTable(); err != nil {
+		logger.Log().Error(err)
+		return err
+	}
+	authService := services.NewAuthService(userRepo, FirebaseAuth)
+
+	userSync := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			token, _ := c.Get("firebaseToken").(*firebaseauthpkg.Token)
+			if token != nil {
+				if user, err := authService.SyncUser(c.Request().Context(), token); err != nil {
+					logger.Log().WithError(err).Error("user sync failed")
+				} else {
+					c.Set("syncedUser", user)
+				}
+			}
+			return next(c)
+		}
+	}
+
+	protected := e.Group("", FirebaseAuthMiddleware(), userSync)
+
 	ayahRepo := repositories.NewAyah(db, logger)
 	surahRepo := repositories.NewSurah(db)
 
@@ -109,6 +136,16 @@ func NewMiddleware(e *echo.Echo) error {
 	e.GET("/quran/ayat/:suraId", quranHandler.GetAyats)
 	e.GET("/quran/ayat", quranHandler.GetAllAyats)
 	e.GET("/quran", quranHandler.GetAll)
+
+	lastReadRepo := repositories.NewLastReadRepository(db, logger)
+	if err := lastReadRepo.EnsureTable(); err != nil {
+		logger.Log().Error(err)
+		return err
+	}
+	lastReadService := services.NewLastReadService(lastReadRepo)
+	lastReadHandler := handlers.NewLastReadHandler(lastReadService)
+	protected.GET("/quran/last-read", lastReadHandler.GetLastRead)
+	protected.PUT("/quran/last-read", lastReadHandler.PutLastRead)
 
 	return nil
 }

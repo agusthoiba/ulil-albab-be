@@ -51,3 +51,24 @@ type QuranAllResp struct {
 	Surahs []SurahResp `json:"surahs"`
 	Ayahs  []AyatResp  `json:"ayahs"`
 }
+
+type User struct {
+	ID          int    `json:"id" db:"id"`
+	FirebaseUID string `json:"firebase_uid" db:"firebase_uid"`
+	Email       string `json:"email" db:"email"`
+	Name        string `json:"name" db:"name"`
+	PhotoURL    string `json:"photo_url" db:"photo_url"`
+	Provider    string `json:"provider" db:"provider"`
+	FCMToken    string `json:"fcm_token" db:"fcm_token"`
+	CreatedAt   string `json:"created_at" db:"created_at"`
+}
+
+type AuthRequest struct {
+	FCMToken string `json:"fcmToken"`
+}
+
+type AuthResponse struct {
+	Success bool   `json:"success"`
+	User    *User  `json:"user"`
+	Message string `json:"message"`
+}
