@@ -72,11 +72,10 @@ jobs:
 
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:xbZ+lXdLpdvcoYj8X8X6huA/Z71TBVg+DErTqiooB4w"
+            - "SHA256:KiFZqjrl8KyLN80K27ICHENSV8c4CnsJBOHI8MDbcfM"
       - run:
-          name: Debug SSH
-          command: |
-            ssh -vvv -o StrictHostKeyChecking=no $DO_USER@$DO_IP "echo 'Testing connection'"
+          name: Add VM to known hosts
+          command: ssh-keyscan -H $DO_IP >> ~/.ssh/known_hosts
       - run:
           name: Deploy Service
           command: |
