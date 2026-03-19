@@ -7,6 +7,7 @@ type LastReadReq struct {
 	UserID      int    `json:"userId"`
 	SuraID      int    `json:"suraId"`
 	VerseID     int    `json:"verseId"`
+	AyahID      int    `json:"ayahId"`
 }
 
 type LastReadResp struct {
@@ -15,5 +16,6 @@ type LastReadResp struct {
 	UserID      int       `json:"userId"`
 	SuraID      int       `json:"suraId"`
 	VerseID     int       `json:"verseId"`
+	AyahID      int       `json:"ayahId"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }

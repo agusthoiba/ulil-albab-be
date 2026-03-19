@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	firebaseauth "firebase.google.com/go/v4/auth"
@@ -69,11 +70,16 @@ func (h *LastReadHandler) PutLastRead(c echo.Context) error {
 
 	req.FirebaseUID = uid
 	req.UserID = userID
+
+	fmt.Printf("surahId: %v, %T, verseId: %v, %T", req.SuraID, req.SuraID, req.VerseID, req.VerseID)
 	if req.SuraID <= 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "suraId must be > 0")
 	}
 	if req.VerseID <= 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "verseId must be > 0")
+	}
+	if req.AyahID <= 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "ayahId must be > 0")
 	}
 
 	resp, err := h.service.SaveLastRead(req)

@@ -100,10 +100,7 @@ func NewMiddleware(e *echo.Echo) error {
 
 	e.Use(DBMiddleware(db))
 
-	if err := InitFirebase(os.Getenv("FIREBASE_CREDENTIALS_PATH")); err != nil {
-		logger.Log().Error(err)
-		return err
-	}
+	InitFirebase(os.Getenv("FIREBASE_CREDENTIALS_PATH"))
 
 	userRepo := repositories.NewUserRepository(db, logger)
 	if err := userRepo.EnsureTable(); err != nil {
