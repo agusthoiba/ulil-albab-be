@@ -18,7 +18,7 @@ func NewUserRepository(db *sql.DB, logger *logger.LogClass) *UserRepository {
 
 func (r *UserRepository) EnsureTable() error {
 	_, err := r.db.Exec(`
-CREATE TABLE IF NOT EXISTS public.users (
+CREATE TABLE IF NOT EXISTS users (
   id           SERIAL PRIMARY KEY,
   firebase_uid TEXT        NOT NULL UNIQUE,
   email        TEXT        NOT NULL,
@@ -36,7 +36,7 @@ func (r *UserRepository) UpsertUser(user *models.User) (*models.User, error) {
 	var saved models.User
 
 	err := r.db.QueryRow(`
-INSERT INTO public.users (firebase_uid, email, name, photo_url, provider, fcm_token)
+INSERT INTO users (firebase_uid, email, name, photo_url, provider, fcm_token)
 VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (firebase_uid)
 DO UPDATE SET
