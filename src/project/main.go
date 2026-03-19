@@ -27,7 +27,7 @@ func main() {
 	err := middlewares.NewMiddleware(e)
 
 	if err != nil {
-		e.Logger.Fatal("Error middleware")
+		e.Logger.Fatalf("Error middleware: %v", err)
 	}
 
 	port := os.Getenv("PORT")
