@@ -28,10 +28,10 @@ func NewLastReadRepository(db *sql.DB, logger *logger.LogClass) *LastReadReposit
 
 func (r *LastReadRepository) EnsureTable() error {
 	_, err := r.db.Exec(`
-CREATE TABLE IF NOT EXISTS public.user_last_read (
+CREATE TABLE IF NOT EXISTS user_last_read (
   id           SERIAL      PRIMARY KEY,
   firebase_uid TEXT        NOT NULL UNIQUE,
-  user_id      INTEGER     NOT NULL REFERENCES public.users(id),
+  user_id      INTEGER     NOT NULL REFERENCES users(id),
   sura_id      INTEGER     NOT NULL,
   verse_id     INTEGER     NOT NULL,
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -46,7 +46,7 @@ func (r *LastReadRepository) GetByFirebaseUID(uid string) (models.LastReadResp, 
 
 	err := r.db.QueryRow(
 		`SELECT id, firebase_uid, user_id, sura_id, verse_id, updated_at
-		 FROM public.user_last_read WHERE firebase_uid = $1`,
+		 FROM user_last_read WHERE firebase_uid = $1`,
 		uid,
 	).Scan(&resp.ID, &resp.FirebaseUID, &resp.UserID, &resp.SuraID, &resp.VerseID, &updatedAt)
 	if err != nil {
@@ -62,7 +62,7 @@ func (r *LastReadRepository) Upsert(req models.LastReadReq) (models.LastReadResp
 	var updatedAt time.Time
 
 	err := r.db.QueryRow(
-		`INSERT INTO public.user_last_read (firebase_uid, user_id, sura_id, verse_id)
+		`INSERT INTO user_last_read (firebase_uid, user_id, sura_id, verse_id)
 		 VALUES ($1, $2, $3, $4)
 		 ON CONFLICT (firebase_uid)
 		 DO UPDATE SET user_id = EXCLUDED.user_id, sura_id = EXCLUDED.sura_id, verse_id = EXCLUDED.verse_id, updated_at = now()
