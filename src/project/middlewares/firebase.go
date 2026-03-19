@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,24 +18,25 @@ const firebaseTokenKey = "firebaseToken"
 
 var FirebaseAuth *auth.Client
 
-func InitFirebase(credentialPath string) {
+func InitFirebase(credentialPath string) error {
 	credBytes, err := os.ReadFile(credentialPath)
 	if err != nil {
-		log.Fatalf("Error reading service account key: %v", err)
+		return fmt.Errorf("error reading service account key: %w", err)
 	}
 	opt := option.WithCredentialsJSON(credBytes)
 
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		log.Fatalf("Error initializing Firebase: %v", err)
+		return fmt.Errorf("error initializing Firebase: %w", err)
 	}
 
 	FirebaseAuth, err = app.Auth(context.Background())
 	if err != nil {
-		log.Fatalf("Error getting Auth client: %v", err)
+		return fmt.Errorf("error getting Auth client: %w", err)
 	}
 
 	log.Println("Firebase initialized successfully")
+	return nil
 }
 
 // FirebaseAuthMiddleware verifies the Firebase Bearer token on protected routes.

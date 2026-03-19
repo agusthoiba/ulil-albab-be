@@ -7,16 +7,21 @@ import (
 	"ulil-albab-be/src/project/models"
 )
 
-type UserRepository struct {
+type UserRepository interface {
+	EnsureTable() error
+	UpsertUser(user *models.User) (*models.User, error)
+}
+
+type UserRepositoryImpl struct {
 	db     *sql.DB
 	logger *logger.LogClass
 }
 
-func NewUserRepository(db *sql.DB, logger *logger.LogClass) *UserRepository {
-	return &UserRepository{db: db, logger: logger}
+func NewUserRepository(db *sql.DB, logger *logger.LogClass) *UserRepositoryImpl {
+	return &UserRepositoryImpl{db: db, logger: logger}
 }
 
-func (r *UserRepository) EnsureTable() error {
+func (r *UserRepositoryImpl) EnsureTable() error {
 	_, err := r.db.Exec(`
 CREATE TABLE IF NOT EXISTS users (
   id           SERIAL PRIMARY KEY,
@@ -32,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
 	return err
 }
 
-func (r *UserRepository) UpsertUser(user *models.User) (*models.User, error) {
+func (r *UserRepositoryImpl) UpsertUser(user *models.User) (*models.User, error) {
 	var saved models.User
 
 	err := r.db.QueryRow(`

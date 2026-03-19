@@ -7,23 +7,19 @@ import (
 	firebaseauth "firebase.google.com/go/v4/auth"
 
 	"ulil-albab-be/src/project/models"
+	"ulil-albab-be/src/project/repositories"
 )
-
-type AuthRepo interface {
-	EnsureTable() error
-	UpsertUser(user *models.User) (*models.User, error)
-}
 
 type AuthService interface {
 	SyncUser(ctx context.Context, token *firebaseauth.Token) (*models.User, error)
 }
 
 type AuthServiceImpl struct {
-	repo           AuthRepo
+	repo           repositories.UserRepository
 	firebaseClient *firebaseauth.Client
 }
 
-func NewAuthService(repo AuthRepo, firebaseClient *firebaseauth.Client) *AuthServiceImpl {
+func NewAuthService(repo repositories.UserRepository, firebaseClient *firebaseauth.Client) *AuthServiceImpl {
 	return &AuthServiceImpl{repo: repo, firebaseClient: firebaseClient}
 }
 
