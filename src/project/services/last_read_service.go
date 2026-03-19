@@ -38,5 +38,8 @@ func (s *LastReadService) SaveLastRead(req models.LastReadReq) (models.LastReadR
 	if req.VerseID <= 0 {
 		return models.LastReadResp{}, errors.New("verseId must be > 0")
 	}
+	if req.AyahID <= 0 {
+		return models.LastReadResp{}, errors.New("ayahId must be > 0")
+	}
 	return s.repo.Upsert(req)
 }

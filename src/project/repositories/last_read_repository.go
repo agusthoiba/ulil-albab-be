@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS user_last_read (
   user_id      INTEGER     NOT NULL REFERENCES users(id),
   sura_id      INTEGER     NOT NULL,
   verse_id     INTEGER     NOT NULL,
+  ayah_id      INTEGER     NOT NULL DEFAULT 0,
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 `)
@@ -45,10 +46,10 @@ func (r *LastReadRepository) GetByFirebaseUID(uid string) (models.LastReadResp, 
 	var updatedAt time.Time
 
 	err := r.db.QueryRow(
-		`SELECT id, firebase_uid, user_id, sura_id, verse_id, updated_at
+		`SELECT id, firebase_uid, user_id, sura_id, verse_id, ayah_id, updated_at
 		 FROM user_last_read WHERE firebase_uid = $1`,
 		uid,
-	).Scan(&resp.ID, &resp.FirebaseUID, &resp.UserID, &resp.SuraID, &resp.VerseID, &updatedAt)
+	).Scan(&resp.ID, &resp.FirebaseUID, &resp.UserID, &resp.SuraID, &resp.VerseID, &resp.AyahID, &updatedAt)
 	if err != nil {
 		return models.LastReadResp{}, err
 	}
@@ -62,16 +63,17 @@ func (r *LastReadRepository) Upsert(req models.LastReadReq) (models.LastReadResp
 	var updatedAt time.Time
 
 	err := r.db.QueryRow(
-		`INSERT INTO user_last_read (firebase_uid, user_id, sura_id, verse_id)
-		 VALUES ($1, $2, $3, $4)
+		`INSERT INTO user_last_read (firebase_uid, user_id, sura_id, verse_id, ayah_id)
+		 VALUES ($1, $2, $3, $4, $5)
 		 ON CONFLICT (firebase_uid)
-		 DO UPDATE SET user_id = EXCLUDED.user_id, sura_id = EXCLUDED.sura_id, verse_id = EXCLUDED.verse_id, updated_at = now()
-		 RETURNING id, firebase_uid, user_id, sura_id, verse_id, updated_at`,
+		 DO UPDATE SET user_id = EXCLUDED.user_id, sura_id = EXCLUDED.sura_id, verse_id = EXCLUDED.verse_id, ayah_id = EXCLUDED.ayah_id, updated_at = now()
+		 RETURNING id, firebase_uid, user_id, sura_id, verse_id, ayah_id, updated_at`,
 		req.FirebaseUID,
 		req.UserID,
 		req.SuraID,
 		req.VerseID,
-	).Scan(&resp.ID, &resp.FirebaseUID, &resp.UserID, &resp.SuraID, &resp.VerseID, &updatedAt)
+		req.AyahID,
+	).Scan(&resp.ID, &resp.FirebaseUID, &resp.UserID, &resp.SuraID, &resp.VerseID, &resp.AyahID, &updatedAt)
 	if err != nil {
 		if r.logger != nil {
 			r.logger.Log().Error(err)
